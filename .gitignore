@@ -1,0 +1,22 @@
+node_modules/
+out/
+dist/
+.vite/
+build/
+bin/
+
+# Google service account key — never commit
+credentials/
+
+# Local env
+.env
+
+# macOS
+.DS_Store
+
+# Design sources & icon exports (regenerated; not needed for build)
+branding/
+
+# Local agent/editor files
+.claude/
+AGENTS.md

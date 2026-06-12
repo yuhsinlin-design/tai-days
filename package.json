@@ -1,0 +1,84 @@
+{
+  "name": "tai-days",
+  "version": "1.0.0",
+  "description": "Tâi Days｜日日台灣 desktop widget",
+  "type": "module",
+  "main": "out/main/main.js",
+  "scripts": {
+    "dev": "vite",
+    "electron": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron .",
+    "dist": "electron-vite build && electron-rebuild -f -w windowlevel && electron-builder",
+    "sync": "node scripts/sync-to-sheets.js",
+    "sync:all": "node scripts/sync-all.js",
+    "build:data": "node scripts/build-data.js"
+  },
+  "build": {
+    "appId": "com.edith.tai-days",
+    "productName": "日日台灣",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "icon/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ]
+    },
+    "files": [
+      "out/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/",
+        "to": "resources/",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "build/Release/windowlevel.node",
+        "to": "windowlevel.node"
+      },
+      {
+        "from": "icon/icon_512.png",
+        "to": "tray-icon.png"
+      }
+    ],
+    "dmg": {
+      "title": "日日台灣 ${version}",
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    }
+  },
+  "dependencies": {
+    "@fontsource/noto-sans": "^5.2.10",
+    "@fontsource/noto-sans-tc": "^5.2.9",
+    "dotenv": "^16.6.1",
+    "framer-motion": "^12.40.0",
+    "googleapis": "^144.0.0",
+    "lunar-javascript": "^1.7.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.4",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "autoprefixer": "^10.4.0",
+    "electron": "^29.0.0",
+    "electron-builder": "^26.15.2",
+    "electron-vite": "^2.1.0",
+    "node-addon-api": "^8.8.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
+  }
+}

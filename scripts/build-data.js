@@ -14,11 +14,17 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const CONTENT_DIR = path.join(ROOT, 'content');
-const AUDIO_DIR = path.join(ROOT, 'public', 'data', 'audio');
+
+// public/data is the version-controlled source of truth (dev server reads it
+// over HTTP). resources/data is a derived mirror, regenerated here and bundled
+// into the packaged Electron app via extraResources — it is gitignored.
+const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
+const RESOURCES_DATA = path.join(ROOT, 'resources', 'data');
+const AUDIO_DIR = path.join(PUBLIC_DATA, 'audio');
 
 const OUTPUT_PATHS = [
-  path.join(ROOT, 'public', 'data', 'calendar.json'),
-  path.join(ROOT, 'resources', 'data', 'calendar.json'),
+  path.join(PUBLIC_DATA, 'calendar.json'),
+  path.join(RESOURCES_DATA, 'calendar.json'),
 ];
 
 function parseCsvRows(filePath) {
@@ -82,4 +88,23 @@ for (const outPath of OUTPUT_PATHS) {
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, json, 'utf8');
   console.log(`✓ Written ${entries.length} entries → ${path.relative(ROOT, outPath)}`);
+}
+
+// Mirror the audio assets from public/data/audio into resources/data/audio so
+// the packaged app ships them. Only copies what changed (size differs / missing).
+const srcAudio = AUDIO_DIR;
+const destAudio = path.join(RESOURCES_DATA, 'audio');
+if (fs.existsSync(srcAudio)) {
+  fs.mkdirSync(destAudio, { recursive: true });
+  let copied = 0;
+  for (const file of fs.readdirSync(srcAudio)) {
+    if (!file.endsWith('.mp3')) continue;
+    const from = path.join(srcAudio, file);
+    const to = path.join(destAudio, file);
+    if (!fs.existsSync(to) || fs.statSync(to).size !== fs.statSync(from).size) {
+      fs.copyFileSync(from, to);
+      copied++;
+    }
+  }
+  console.log(`✓ Mirrored audio → ${path.relative(ROOT, destAudio)} (${copied} updated)`);
 }

@@ -8,6 +8,11 @@ bin/
 # Google service account key — never commit
 credentials/
 
+# Derived data mirror — regenerated from content/ by `npm run build:data`.
+# public/data/ is the version-controlled source of truth; this is bundled into
+# the packaged app via extraResources and does not belong in git.
+resources/data/
+
 # Local env
 .env
 

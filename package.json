@@ -1,6 +1,6 @@
 {
   "name": "tai-days",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tâi Days｜日日台灣 desktop widget",
   "type": "module",
   "main": "out/main/main.js",

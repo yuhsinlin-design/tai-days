@@ -100,14 +100,3 @@ export async function generateDockIcon(date: Date): Promise<string> {
 
   return out.toDataURL('image/png')
 }
-
-export function scheduleMidnight(callback: () => void): () => void {
-  let timeoutId: ReturnType<typeof setTimeout>
-  const scheduleNext = () => {
-    const now = new Date()
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
-    timeoutId = setTimeout(() => { callback(); scheduleNext() }, tomorrow.getTime() - now.getTime())
-  }
-  scheduleNext()
-  return () => clearTimeout(timeoutId)
-}

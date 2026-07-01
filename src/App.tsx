@@ -8,7 +8,7 @@ import { getTheme } from './themes'
 import type { CalendarTheme, FruitSpec } from './themes'
 import { bgPng, pinSvg } from './assets'
 import { getTaiwanEvent } from './utils/taiwanEvents'
-import { generateDockIcon, scheduleMidnight } from './utils/generateDockIcon'
+import { generateDockIcon } from './utils/generateDockIcon'
 import { hasWordAudio, playWordAudio } from './utils/audio'
 
 interface DayData {
@@ -185,9 +185,31 @@ export default function App() {
   useEffect(() => {
     const api = (window as any).electronAPI
     if (!api?.setDockIcon) return
-    const update = () => generateDockIcon(new Date()).then(url => api.setDockIcon(url)).catch(() => {})
+    // Only regenerate when the calendar day actually changes. A single midnight
+    // setTimeout is unreliable: Chromium pauses/throttles timers while the machine
+    // sleeps or the window is hidden (dock-only), so it can fire late — leaving the
+    // dock stuck on yesterday's number. Instead we poll and also re-check whenever
+    // the app is shown or focused, so a wake-from-sleep refreshes within seconds.
+    let lastKey = ''
+    const update = () => {
+      const now = new Date()
+      const key = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`
+      if (key === lastKey) return
+      lastKey = key
+      generateDockIcon(now)
+        .then(url => api.setDockIcon(url))
+        .catch(() => { lastKey = '' }) // retry on next tick if it failed
+    }
     document.fonts.ready.then(update)
-    return scheduleMidnight(update)
+    const intervalId = setInterval(update, 30_000)
+    const onVisible = () => { if (!document.hidden) update() }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', update)
+    return () => {
+      clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', update)
+    }
   }, [])
 
   // ── Layer data helpers ─────────────────────────────────────────────────────────

@@ -4,6 +4,7 @@ dist/
 .vite/
 build/
 bin/
+*.tsbuildinfo
 
 # Google service account key — never commit
 credentials/
